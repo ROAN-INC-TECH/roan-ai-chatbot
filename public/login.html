@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#14131C">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+<link rel="icon" href="/icons/icon-192.png">
+
+<title>Connexion — ROAN AI</title>
+<script>
+    (function () {
+        const THEME_KEY = 'roanai_theme';
+        function resolveTheme(pref) {
+            if (pref === 'dark' || pref === 'light') return pref;
+            return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        }
+        let pref = 'system';
+        try { pref = localStorage.getItem(THEME_KEY) || 'system'; } catch (e) {}
+        document.documentElement.setAttribute('data-theme', resolveTheme(pref));
+        window.roanThemePref = pref;
+    })();
+</script>
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+    :root{
+        --bg-app: #FAF9F6;
+        --bg-panel: #FFFFFF;
+        --text: #2B2A27;
+        --text-light: #83817A;
+        --border: #E5E2D9;
+        --accent: #CC7A5C;
+        --accent2: #7C5CFF;
+        --accent-hover: #B8694C;
+        --danger: #C0392B;
+        --brand-bg-1: #14131C;
+        --brand-bg-2: #241E33;
+    }
+    [data-theme="dark"]{
+        --bg-app: #1A1A18;
+        --bg-panel: #232320;
+        --text: #ECECE6;
+        --text-light: #9B9A93;
+        --border: #3A3A36;
+        --accent: #D48366;
+        --accent-hover: #E09375;
+    }
+
+    *{ margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color: transparent; }
+
+    body{
+        font-family: 'Inter', sans-serif;
+        min-height: 100vh; min-height: 100dvh;
+        display:flex;
+        background: var(--bg-app);
+        color: var(--text);
+    }
+
+    .auth-shell{ display:flex; width:100%; min-height:100vh; min-height:100dvh; }
+
+    /* ---------- PANNEAU DE MARQUE (gauche) ---------- */
+    .brand-panel{
+        flex: 1.1; position: relative; overflow: hidden;
+        background: radial-gradient(circle at 20% 20%, var(--brand-bg-2), var(--brand-bg-1) 60%);
+        color: #F4F2ED;
+        display:flex; flex-direction:column; justify-content:space-between;
+        padding: 44px 46px;
+    }
+    .brand-panel::before{
+        content:""; position:absolute; inset:0; opacity:0.5;
+        background-image:
+            radial-gradient(circle at 15% 85%, rgba(204,122,92,0.35), transparent 40%),
+            radial-gradient(circle at 85% 15%, rgba(124,92,255,0.35), transparent 40%);
+        animation: driftGlow 12s ease-in-out infinite alternate;
+    }
+    .brand-panel::after{
+        content:""; position:absolute; inset:0;
+        background-image: radial-gradient(rgba(255,255,255,0.06) 1px, transparent 1px);
+        background-size: 26px 26px;
+        opacity: 0.5;
+    }
+    @keyframes driftGlow{
+        0%   { transform: translate(0,0) scale(1); }
+        100% { transform: translate(-3%, 3%) scale(1.08); }
+    }
+
+    .brand-top{ position:relative; z-index:2; }
+    .brand-logo{ display:flex; align-items:center; gap:12px; margin-bottom: 56px; }
+    .brand-mark{
+        width: 42px; height: 42px; border-radius: 13px; flex-shrink:0;
+        background: linear-gradient(135deg, var(--accent), var(--accent2));
+        display:flex; align-items:center; justify-content:center;
+        font-weight:800; font-size:1.15rem; color:#fff;
+        box-shadow: 0 6px 20px rgba(204,122,92,0.35);
+    }
+    .brand-wordmark{ font-size: 1.2rem; font-weight: 700; letter-spacing: -0.01em; }
+
+    .brand-tagline{
+        font-size: 1.7rem; font-weight: 700; line-height: 1.3; max-width: 420px;
+        margin-bottom: 20px; letter-spacing: -0.01em;
+    }
+    .brand-tagline span{ color: var(--accent); }
+    .brand-sub{ font-size: 0.95rem; color: rgba(244,242,237,0.65); max-width: 380px; line-height: 1.6; }
+
+    .brand-features{ position:relative; z-index:2; display:flex; flex-direction:column; gap:14px; margin-top: 40px; }
+    .brand-feature{ display:flex; align-items:center; gap:12px; font-size:0.88rem; color: rgba(244,242,237,0.85); }
+    .brand-feature .dot{
+        width:30px; height:30px; border-radius:9px; flex-shrink:0;
+        background: rgba(255,255,255,0.08); display:flex; align-items:center; justify-content:center;
+        font-size: 0.95rem;
+    }
+
+    .brand-footer{ position:relative; z-index:2; font-size:0.75rem; color: rgba(244,242,237,0.45); }
+
+    /* ---------- PANNEAU FORMULAIRE (droite) ---------- */
+    .form-panel{
+        flex: 1; display:flex; align-items:center; justify-content:center;
+        padding: 32px 24px; position: relative;
+    }
+
+    .theme-toggle{
+        position:absolute; top:22px; right:22px;
+        width:38px; height:38px; border-radius:50%;
+        background: var(--bg-panel); border:1px solid var(--border); color: var(--text-light);
+        display:flex; align-items:center; justify-content:center; cursor:pointer;
+    }
+    .theme-toggle svg{ width:17px; height:17px; stroke:currentColor; fill:none; stroke-width:2; }
+
+    .card{
+        background: var(--bg-panel);
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        width: 100%;
+        max-width: 380px;
+        padding: 38px 34px;
+        box-shadow: 0 20px 60px rgba(20,19,28,0.06);
+    }
+
+    .mobile-logo{ display:none; align-items:center; gap:10px; margin-bottom: 24px; }
+    .mobile-logo .brand-mark{ width:34px; height:34px; font-size:1rem; border-radius:10px; }
+    .mobile-logo .brand-wordmark{ color: var(--text); }
+
+    h1{ font-size: 1.35rem; font-weight: 700; margin-bottom: 6px; letter-spacing: -0.01em; }
+    .subtitle{ color: var(--text-light); font-size: 0.9rem; margin-bottom: 26px; }
+
+    .field{ margin-bottom: 16px; }
+    .password-wrap{ position: relative; }
+    .password-wrap input{ padding-right: 44px; }
+    .toggle-pw{
+        position:absolute; right:10px; top:50%; transform:translateY(-50%);
+        background:none; border:none; cursor:pointer; font-size:1rem; color: var(--text-light);
+        padding:4px;
+    }
+
+    label{ display:block; font-size: 0.82rem; font-weight: 500; margin-bottom: 6px; color: var(--text); }
+
+    input[type="email"], input[type="password"]{
+        width: 100%; padding: 12px 14px; border: 1px solid var(--border); border-radius: 11px;
+        font-family: 'Inter', sans-serif; font-size: 0.95rem; outline: none;
+        background: var(--bg-app); color: var(--text);
+        transition: border-color .15s, box-shadow .15s;
+    }
+    input:focus{ border-color: var(--accent); box-shadow: 0 0 0 3px rgba(204,122,92,0.15); }
+
+    .form-error{
+        display:none; text-align:center; padding: 10px; background: #FDECEC; border: 1px solid #F5C2C0;
+        color: #B3271B; border-radius: 10px; font-size: 0.85rem; margin-bottom: 16px;
+    }
+
+    .btn-primary{
+        width:100%; padding: 13px; border:none; border-radius: 11px;
+        background: linear-gradient(135deg, var(--accent), var(--accent2));
+        color:#fff; font-family:'Inter', sans-serif; font-size: 0.95rem; font-weight: 700;
+        cursor:pointer; margin-top: 8px; transition: opacity .15s, transform .1s;
+    }
+    .btn-primary:hover{ opacity: 0.92; }
+    .btn-primary:active{ transform: scale(0.98); }
+    .btn-primary:disabled{ opacity:0.6; cursor:not-allowed; }
+
+    .footer-link{ text-align:center; font-size: 0.85rem; color: var(--text-light); margin-top: 24px; }
+    .footer-link a{ color: var(--accent); text-decoration:none; font-weight: 600; }
+    .footer-link a:hover{ text-decoration:underline; }
+
+    @media (max-width: 860px){
+        .brand-panel{ display:none; }
+        .mobile-logo{ display:flex; }
+    }
+</style>
+</head>
+<body>
+
+<div class="auth-shell">
+    <div class="brand-panel">
+        <div class="brand-top">
+            <div class="brand-logo">
+                <div class="brand-mark"><svg viewBox="0 0 36 36" width="68%" height="68%" aria-hidden="true"><text x="3" y="28" font-family="Inter, sans-serif" font-weight="800" font-size="24" fill="#fff">R</text><path d="M27 3 L28.6 8.4 L34 10 L28.6 11.6 L27 17 L25.4 11.6 L20 10 L25.4 8.4 Z" fill="#fff" opacity="0.92"/></svg></div>
+                <div class="brand-wordmark">ROAN AI</div>
+            </div>
+            <div class="brand-tagline">Un assistant IA qui <span>comprend</span>, <span>répond</span> et <span>s'adapte</span> à toi.</div>
+            <div class="brand-sub">Développé par MR ROAN INC. Texte, images, documents : une seule conversation pour tout faire.</div>
+        </div>
+        <div class="brand-features">
+            <div class="brand-feature"><span class="dot">⚡</span> Réponses instantanées, en streaming</div>
+            <div class="brand-feature"><span class="dot">📎</span> Comprend le texte, les images et tes fichiers</div>
+            <div class="brand-feature"><span class="dot">🔒</span> Tes conversations restent sur ton appareil</div>
+        </div>
+        <div class="brand-footer">© 2026 MR ROAN INC — Propulsé par Mistral AI</div>
+    </div>
+
+    <div class="form-panel">
+        <button class="theme-toggle" id="themeToggle" title="Changer de thème" type="button">
+            <svg id="themeIcon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"></circle><line x1="12" y1="2" x2="12" y2="4"></line><line x1="12" y1="20" x2="12" y2="22"></line><line x1="4.2" y1="4.2" x2="5.6" y2="5.6"></line><line x1="18.4" y1="18.4" x2="19.8" y2="19.8"></line><line x1="2" y1="12" x2="4" y2="12"></line><line x1="20" y1="12" x2="22" y2="12"></line><line x1="4.2" y1="19.8" x2="5.6" y2="18.4"></line><line x1="18.4" y1="5.6" x2="19.8" y2="4.2"></line></svg>
+        </button>
+
+        <div class="card">
+            <div class="mobile-logo">
+                <div class="brand-mark"><svg viewBox="0 0 36 36" width="68%" height="68%" aria-hidden="true"><text x="3" y="28" font-family="Inter, sans-serif" font-weight="800" font-size="24" fill="#fff">R</text><path d="M27 3 L28.6 8.4 L34 10 L28.6 11.6 L27 17 L25.4 11.6 L20 10 L25.4 8.4 Z" fill="#fff" opacity="0.92"/></svg></div>
+                <div class="brand-wordmark">ROAN AI</div>
+            </div>
+
+            <h1>Content de te revoir</h1>
+            <p class="subtitle">Connecte-toi à ton compte ROAN AI</p>
+
+            <div class="form-error" id="formError"></div>
+
+            <form id="loginForm" novalidate>
+                <div class="field">
+                    <label for="email">Adresse e-mail</label>
+                    <input type="email" id="email" placeholder="toi@exemple.com" autocomplete="email">
+                </div>
+
+                <div class="field">
+                    <label for="password">Mot de passe</label>
+                    <div class="password-wrap">
+                        <input type="password" id="password" placeholder="Ton mot de passe" autocomplete="current-password">
+                        <button type="button" class="toggle-pw" id="togglePw" aria-label="Afficher le mot de passe">👁️</button>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-primary" id="submitBtn">Se connecter</button>
+            </form>
+
+            <p class="footer-link">Pas encore de compte ? <a href="signup.html">S'inscrire</a></p>
+        </div>
+    </div>
+</div>
+
+<script>
+    // --- Bouton de thème (clair / sombre), synchronisé avec le reste de l'app ---
+    const THEME_KEY = 'roanai_theme';
+    const themeToggle = document.getElementById('themeToggle');
+    function currentResolvedTheme(){
+        return document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+    }
+    themeToggle.addEventListener('click', () => {
+        const next = currentResolvedTheme() === 'dark' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', next);
+        try { localStorage.setItem(THEME_KEY, next); } catch(e) {}
+    });
+
+    const form = document.getElementById('loginForm');
+    const submitBtn = document.getElementById('submitBtn');
+    const formError = document.getElementById('formError');
+
+    const togglePw = document.getElementById('togglePw');
+    const pwInput = document.getElementById('password');
+    togglePw.addEventListener('click', () => {
+        const isHidden = pwInput.type === 'password';
+        pwInput.type = isHidden ? 'text' : 'password';
+        togglePw.textContent = isHidden ? '🙈' : '👁️';
+        togglePw.setAttribute('aria-label', isHidden ? 'Masquer le mot de passe' : 'Afficher le mot de passe');
+    });
+
+    form.addEventListener('submit', async function(e){
+        e.preventDefault();
+        formError.style.display = 'none';
+
+        const email = document.getElementById('email').value.trim();
+        const password = document.getElementById('password').value;
+
+        submitBtn.disabled = true;
+        submitBtn.textContent = "Connexion...";
+
+        try {
+            const res = await fetch('/api/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password })
+            });
+
+            const data = await res.json();
+
+            if(!res.ok){
+                formError.textContent = data.error || "Une erreur est survenue.";
+                formError.style.display = 'block';
+                submitBtn.disabled = false;
+                submitBtn.textContent = "Se connecter";
+                return;
+            }
+
+            window.location.href = 'index.html';
+
+        } catch (err) {
+            formError.textContent = "Impossible de contacter le serveur. Réessaie.";
+            formError.style.display = 'block';
+            submitBtn.disabled = false;
+            submitBtn.textContent = "Se connecter";
+        }
+    });
+</script>
+
+<script>
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/service-worker.js').catch(() => {});
+    });
+}
+</script>
+</body>
+</html>
