@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: roan-ai
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: JWT_SECRET
+        generateValue: true
+      - key: MISTRAL_API_KEY
+        sync: false
+      - key: MISTRAL_MODEL
+        value: mistral-large-latest
+      - key: MISTRAL_VISION_MODEL
+        value: pixtral-large-latest
